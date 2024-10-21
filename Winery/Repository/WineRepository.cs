@@ -1,5 +1,7 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Winery.Entities;
+using System.Collections.Generic;
+using System.Linq;
 
 namespace Winery.Repository
 {
@@ -17,17 +19,24 @@ namespace Winery.Repository
             _context.Database.EnsureCreated(); // Asegura que la base de datos se cree si no existe
         }
 
+        // Método para obtener todos los vinos
         public List<Wine> GetWines() => _context.Wines.ToList();
 
-        public Wine GetWineByName(string name) => _context.Wines
-            .FirstOrDefault(w => w.Name.Equals(name, StringComparison.OrdinalIgnoreCase));
+        // Método para obtener un vino por nombre (sin distinción de mayúsculas y minúsculas)
+        public Wine GetWineByName(string name)
+        {
+            return _context.Wines
+                .FirstOrDefault(w => w.Name.ToLower() == name.ToLower());
+        }
 
+        // Método para agregar un nuevo vino
         public void AddWine(Wine wine)
         {
             _context.Wines.Add(wine);
             _context.SaveChanges(); // Guarda los cambios en la base de datos
         }
 
+        // Método para actualizar un vino existente
         public void UpdateWine(Wine wine)
         {
             var existingWine = GetWineByName(wine.Name);

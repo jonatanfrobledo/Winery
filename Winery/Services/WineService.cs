@@ -28,10 +28,19 @@ namespace Winery.Services
 
         public WineDto GetWineByName(string name)
         {
+            if (string.IsNullOrWhiteSpace(name))
+            {
+                throw new ArgumentException("El nombre no puede estar vacío.", nameof(name));
+            }
+
+            // Obtener el vino del repositorio
             var wine = _repository.GetWineByName(name);
             if (wine == null)
-                return null;
+            {
+                return null; // O lanzar una excepción dependiendo de tu preferencia
+            }
 
+            // Mapear Wine a WineDto
             return new WineDto
             {
                 Name = wine.Name,
@@ -55,17 +64,23 @@ namespace Winery.Services
 
             _repository.AddWine(wine);
         }
+
         public void AddStock(string name, int quantity)
         {
+            if (string.IsNullOrWhiteSpace(name))
+            {
+                throw new ArgumentException("El nombre del vino no puede estar vacío.", nameof(name));
+            }
+
             var wine = _repository.GetWineByName(name);
-            if (name == null)
+            if (wine != null) // Verificar si el vino existe
             {
                 wine.Stock += quantity;
                 _repository.UpdateWine(wine);
             }
             else
             {
-                throw new Exception($"El vino {name} no existe en el inventario");
+                throw new Exception($"El vino '{name}' no existe en el inventario.");
             }
         }
     }
