@@ -1,7 +1,6 @@
 ﻿using Winery.Entities;
 using Microsoft.EntityFrameworkCore;
 using System.Collections.Generic;
-using System.Threading.Tasks;
 
 namespace Winery.Repository
 {
@@ -14,41 +13,41 @@ namespace Winery.Repository
             _context = context;
         }
 
-        public async Task<List<User>> GetUsers()
+        public List<User> GetUsers()
         {
-            return await _context.Users.ToListAsync(); // Obtiene todos los usuarios de la base de datos
+            return _context.Users.ToList();
         }
 
-        public async Task<User?> GetUserByIdAsync(int id)
+        public User? GetUserById(int id)
         {
-            return await _context.Users.FindAsync(id); // Busca un usuario por su ID
+            return _context.Users.Find(id);
         }
 
-        public async Task<User?> GetUserByUsernameAsync(string username)
+        public User? GetUserByUsername(string username)
         {
-            return await _context.Users
-                .FirstOrDefaultAsync(u => u.Username.Equals(username, StringComparison.OrdinalIgnoreCase)); // Busca un usuario por su nombre de usuario
+            return _context.Users
+                .FirstOrDefault(u => u.Username.ToLower() == username.ToLower());
         }
 
-        public async Task AddUserAsync(User user)
+        public void AddUser(User user)
         {
-            await _context.Users.AddAsync(user); // Agrega un nuevo usuario a la base de datos
-            await _context.SaveChangesAsync(); // Guarda los cambios
+            _context.Users.Add(user);
+            _context.SaveChanges();
         }
 
-        public async Task UpdateUserAsync(User user)
+        public void UpdateUser(User user)
         {
-            _context.Users.Update(user); // Actualiza el usuario
-            await _context.SaveChangesAsync(); // Guarda los cambios
+            _context.Users.Update(user);
+            _context.SaveChanges();
         }
 
-        public async Task DeleteUserAsync(int id)
+        public void DeleteUser(int id)
         {
-            var user = await GetUserByIdAsync(id); // Busca el usuario por su ID
+            var user = GetUserById(id);
             if (user != null)
             {
-                _context.Users.Remove(user); // Elimina el usuario
-                await _context.SaveChangesAsync(); // Guarda los cambios
+                _context.Users.Remove(user);
+                _context.SaveChanges();
             }
         }
     }

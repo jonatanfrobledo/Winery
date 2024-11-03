@@ -10,7 +10,7 @@ namespace Winery.Entities
         [Required(ErrorMessage = "El nombre del invitado es obligatorio.")]
         public string Name { get; set; } = string.Empty;
 
-        public int CataId { get; set; } // Clave foránea para relacionar con Cata
+        public int CataId { get; set; }
         public Cata Cata { get; set; }
     }
 }

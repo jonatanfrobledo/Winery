@@ -1,14 +1,14 @@
-﻿using System.Collections.Generic; // Asegúrate de tener este espacio de nombres
+﻿using System.Collections.Generic;
 
 namespace Winery.Entities
 {
     public class Cata
     {
         public int Id { get; set; }
-        public string Name { get; set; }
-        public DateTime Date { get; set; }
+        public string Nombre { get; set; }
+        public DateTime Fecha { get; set; }
 
-        public List<Wine> Wines { get; set; } = new List<Wine>(); // Inicializa la lista
-        public List<Guest> Guests { get; set; } = new List<Guest>(); // Cambiado a una lista de Guest
+        public List<Wine> Vinos { get; set; } = new List<Wine>(); 
+        public List<Guest> Invitados { get; set; } = new List<Guest>(); 
     }
 }

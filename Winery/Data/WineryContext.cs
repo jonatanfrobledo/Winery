@@ -11,6 +11,7 @@ public class WineryContext : DbContext
     public DbSet<User> Users { get; set; }
     public DbSet<Cata> Catas { get; set; }
     public DbSet<Guest> Guests { get; set; }
+    public DbSet<Sale> Sales { get; set; }
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -26,10 +27,9 @@ public class WineryContext : DbContext
         modelBuilder.Entity<Guest>()
             .HasKey(g => g.Id);
 
-        // Configuración adicional de relaciones
         modelBuilder.Entity<Guest>()
             .HasOne(g => g.Cata)
-            .WithMany(c => c.Guests)
+            .WithMany(c => c.Invitados)
             .HasForeignKey(g => g.CataId);
     }
 }

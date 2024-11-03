@@ -16,16 +16,17 @@ namespace Winery.Controllers
         }
 
         [HttpPost]
-        public IActionResult RegisterUser(UserDto userDto)
+        public IActionResult RegisterUser(UserDto loginDto)
         {
-            _userService.RegisterUser(userDto);
+            _userService.RegisterUser(loginDto);
             return Ok("Usuario registrado correctamente.");
         }
 
         [HttpGet]
         public IActionResult GetUsers()
         {
-            var users = _userService.GetAllUsers();
+            var users = _userService.GetAllUsers()
+                .Select(user => new UserDto { Username = user.Username}).ToList();
             return Ok(users);
         }
     }

@@ -1,11 +1,10 @@
 ﻿using Microsoft.AspNetCore.Mvc;
-using Microsoft.Extensions.Configuration;
 using Microsoft.IdentityModel.Tokens;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
+using Winery.Dtos;
 using Winery.Entities;
-using Winery.Models;
 using Winery.Services;
 
 namespace Winery.Controllers
@@ -23,39 +22,44 @@ namespace Winery.Controllers
             _configuration = configuration;
         }
 
-        [HttpPost("authenticate")]
-        public async Task<IActionResult> Authenticate([FromBody] Credentials dto)
+        [HttpPost]
+        public IActionResult Authenticate([FromBody] UserDto loginDto)
         {
-            if (dto == null || string.IsNullOrEmpty(dto.Username) || string.IsNullOrEmpty(dto.Password))
+            // Validación básica de los datos de entrada
+            if (loginDto == null || string.IsNullOrEmpty(loginDto.Username) || string.IsNullOrEmpty(loginDto.Password))
             {
-                return BadRequest("Credenciales no válidas.");
+                return BadRequest("Los datos de inicio de sesión no son válidos.");
             }
 
-            User? userToAuthenticate = await _userService.AuthenticateUser(dto.Username, dto.Password); // Usa await aquí
-            if (userToAuthenticate == null)
+            User? user = _userService.AuthenticateUser(loginDto.Username, loginDto.Password);
+            if (user == null)
             {
                 return Unauthorized("Usuario o contraseña incorrectos.");
             }
 
-            var securityKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_configuration["Authentication:SecretForKey"]));
-            var credentials = new SigningCredentials(securityKey, SecurityAlgorithms.HmacSha256);
+            // Crear la clave de seguridad
+            var securityPassword = new SymmetricSecurityKey(Encoding.ASCII.GetBytes(_configuration["Authentication:SecretForKey"]));
+            var credentials = new SigningCredentials(securityPassword, SecurityAlgorithms.HmacSha256);
 
-            var claims = new List<Claim>
+            // Crear los claims para el token
+            var claimsForToken = new List<Claim>
             {
-                new Claim("sub", userToAuthenticate.Id.ToString()),
-                new Claim("role", userToAuthenticate.Role.ToString())
+                new Claim(JwtRegisteredClaimNames.Sub, user.Id.ToString()),
+                new Claim(JwtRegisteredClaimNames.GivenName, user.Username)
             };
 
+            // Generar el token
             var jwtSecurityToken = new JwtSecurityToken(
-                _configuration["Authentication:Issuer"],
-                _configuration["Authentication:Audience"],
-                claims,
-                expires: DateTime.UtcNow.AddHours(1),
-                signingCredentials: credentials
-            );
+                issuer: _configuration["Authentication:Issuer"],
+                audience: _configuration["Authentication:Audience"],
+                claims: claimsForToken,
+                DateTime.UtcNow,
+                DateTime.UtcNow.AddHours(1),
+                signingCredentials: credentials);
 
-            var tokenToReturn = new JwtSecurityTokenHandler().WriteToken(jwtSecurityToken);
-            return Ok(new { Token = tokenToReturn });
+            // Retornar el token
+            return Ok(new JwtSecurityTokenHandler().WriteToken(jwtSecurityToken));
+            
         }
     }
 }

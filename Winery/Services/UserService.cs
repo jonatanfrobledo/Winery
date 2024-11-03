@@ -1,10 +1,9 @@
 ﻿using Winery.Dtos;
 using Winery.Entities;
 using Winery.Repository;
-using BCrypt.Net; // Asegúrate de instalar la biblioteca BCrypt.Net
+using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Threading.Tasks;
 
 namespace Winery.Services
 {
@@ -17,32 +16,28 @@ namespace Winery.Services
             _repository = repository;
         }
 
-        // Cambiado a Task<User?> para coincidir con la implementación del controlador
-        public async Task<User?> AuthenticateUser(string username, string password)
+        public User? AuthenticateUser(string username, string password)
         {
-            // Verifica si el usuario existe
-            var user = await _repository.GetUserByUsernameAsync(username);
-            if (user != null && BCrypt.Net.BCrypt.Verify(password, user.Password)) // Verifica la contraseña
+            var user = _repository.GetUserByUsername(username);
+            if (user != null && BCrypt.Net.BCrypt.Verify(password, user.Password))
             {
-                return user; // Retorna el usuario si la autenticación es exitosa
+                return user;
             }
-            return null; // Retorna null si la autenticación falla
+            return null;
         }
 
-        public async Task<List<UserDto>> GetAllUsers()
+        public List<UserDto> GetAllUsers()
         {
-            var users = await _repository.GetUsers(); // Usa el método asíncrono
+            var users = _repository.GetUsers();
             return users.Select(x => new UserDto
             {
-                Username = x.Username,
-                // No incluir la contraseña en el DTO
+                Username = x.Username
             }).ToList();
         }
 
-        public async Task RegisterUser(UserDto userDto)
+        public void RegisterUser(UserDto userDto)
         {
-            // Verifica si el usuario ya existe
-            var existingUser = await _repository.GetUserByUsernameAsync(userDto.Username);
+            var existingUser = _repository.GetUserByUsername(userDto.Username);
             if (existingUser != null)
             {
                 throw new InvalidOperationException("El nombre de usuario ya está en uso.");
@@ -51,14 +46,20 @@ namespace Winery.Services
             var user = new User
             {
                 Username = userDto.Username,
-                Password = BCrypt.Net.BCrypt.HashPassword(userDto.Password), // Hashea la contraseña antes de guardarla
+                Password = BCrypt.Net.BCrypt.HashPassword(userDto.Password),
             };
-            await _repository.AddUserAsync(user); // Usa el método asíncrono
+            _repository.AddUser(user);
         }
 
-        public async Task DeleteUser(int userId)
+        public void DeleteUser(int userId)
         {
-            await _repository.DeleteUserAsync(userId); // Usa el método asíncrono
+            var user = _repository.GetUserById(userId);
+            if (user == null)
+            {
+                throw new InvalidOperationException("El usuario no existe.");
+            }
+
+            _repository.DeleteUser(userId); 
         }
     }
 }

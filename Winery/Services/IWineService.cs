@@ -1,5 +1,5 @@
-﻿using System.Runtime.CompilerServices;
-using Winery.Dtos;
+﻿using Winery.Dtos;
+using System.Collections.Generic;
 
 namespace Winery.Services
 {
@@ -7,9 +7,8 @@ namespace Winery.Services
     {
         List<WineDto> GetAllWines();
         WineDto GetWineByName(string name);
-
         void RegisterWine(WineDto wineDto);
-
-        void AddStock(string name, int quantify);
+        void AddStock(string name, int quantity);
+        List<WineDto> GetWineByVariety(string variety);
     }
 }

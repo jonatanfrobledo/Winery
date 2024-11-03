@@ -1,16 +1,17 @@
-using Winery.Repository;
-using Winery.Services;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
+using Microsoft.OpenApi.Models;
 using System.Text;
+using Winery.Repository;
+using Winery.Services;
 
 var builder = WebApplication.CreateBuilder(args);
 
 // Obtener la cadena de conexión desde appsettings.json
 var connectionString = builder.Configuration.GetConnectionString("WineryConnection");
 
-// Agregar el contexto de base de datos con SQLite
+// Configuración de DbContext con SQLite
 builder.Services.AddDbContext<WineryContext>(options =>
     options.UseSqlite(connectionString));
 
@@ -35,23 +36,49 @@ builder.Services.AddAuthentication(options =>
         ValidateAudience = true,
         ValidIssuer = builder.Configuration["Authentication:Issuer"],
         ValidAudience = builder.Configuration["Authentication:Audience"],
-        ValidateLifetime = true, // Valida la expiración del token
-        ClockSkew = TimeSpan.Zero // Elimina la tolerancia para la expiración del token
+        ValidateLifetime = true,
+        ClockSkew = TimeSpan.Zero // Elimina la tolerancia de expiración del token
     };
 });
 
 // Agregar servicios al contenedor
 builder.Services.AddControllers();
 
-// Inyectar repositorios y servicios
+// Inyección de repositorios y servicios usando interfaces
 builder.Services.AddScoped<WineRepository>();
 builder.Services.AddScoped<UserRepository>();
 builder.Services.AddScoped<IWineService, WineService>();
 builder.Services.AddScoped<IUserService, UserService>();
 
-// Agregar Swagger para documentación de la API
+// Configuración de Swagger con seguridad JWT
 builder.Services.AddEndpointsApiExplorer();
-builder.Services.AddSwaggerGen();
+builder.Services.AddSwaggerGen(setupAction =>
+{
+    setupAction.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
+    {
+        Name = "Authorization",
+        Type = SecuritySchemeType.Http,
+        Scheme = "Bearer",
+        BearerFormat = "JWT",
+        In = ParameterLocation.Header,
+        Description = "Introduzca el token JWT en el formato: Bearer {token}"
+    });
+
+    setupAction.AddSecurityRequirement(new OpenApiSecurityRequirement
+    {
+        {
+            new OpenApiSecurityScheme
+            {
+                Reference = new OpenApiReference
+                {
+                    Type = ReferenceType.SecurityScheme,
+                    Id = "Bearer"
+                }
+            },
+            Array.Empty<string>()
+        }
+    });
+});
 
 var app = builder.Build();
 
@@ -63,8 +90,7 @@ if (app.Environment.IsDevelopment())
 
 app.UseHttpsRedirection();
 
-// Middleware para la autenticación
-app.UseAuthentication(); // Asegura que se use la autenticación antes de la autorización
+app.UseAuthentication();
 app.UseAuthorization();
 
 app.MapControllers();

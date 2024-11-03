@@ -1,6 +1,8 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 using Winery.Dtos;
 using Winery.Services;
+using System;
 
 namespace Winery.Controllers
 {
@@ -15,6 +17,7 @@ namespace Winery.Controllers
             _wineService = wineService;
         }
 
+        [Authorize]
         [HttpGet]
         public IActionResult GetWines()
         {
@@ -25,12 +28,12 @@ namespace Winery.Controllers
             }
             catch (Exception ex)
             {
-                // Log exception (puedes implementar un servicio de logging)
                 return StatusCode(500, $"Error al obtener los vinos: {ex.Message}");
             }
         }
 
-        [HttpGet("{name}")]
+        [Authorize]
+        [HttpGet("name/{name}")]
         public IActionResult GetWineByName(string name)
         {
             try
@@ -51,6 +54,29 @@ namespace Winery.Controllers
             }
         }
 
+        [Authorize]
+        [HttpGet("variety/{variety}")]
+        public IActionResult GetWinesByVariety(string variety)
+        {
+            try
+            {
+                if (string.IsNullOrEmpty(variety))
+                    return BadRequest("La variedad no puede estar vacía.");
+
+                var wines = _wineService.GetWineByVariety(variety);
+
+                if (wines == null)
+                    return NotFound($"No se encontraron vinos de la variedad '{variety}'.");
+
+                return Ok(wines);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, $"Error al buscar vinos por variedad: {ex.Message}");
+            }
+        }
+
+        [Authorize]
         [HttpPost]
         public IActionResult RegisterWine([FromBody] WineDto wineDto)
         {
@@ -68,6 +94,7 @@ namespace Winery.Controllers
             }
         }
 
+        [Authorize]
         [HttpPut("addstock/{name}")]
         public IActionResult AddStock(string name, [FromBody] int quantity)
         {
