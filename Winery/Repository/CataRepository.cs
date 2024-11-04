@@ -1,4 +1,5 @@
-﻿using Winery.Entities;
+﻿using Microsoft.EntityFrameworkCore;
+using Winery.Entities;
 
 namespace Winery.Repository
 {
@@ -16,6 +17,13 @@ namespace Winery.Repository
             _context.Catas.Add(cata);
             _context.SaveChanges();
             return cata;
+        }
+        public Cata? GetById(int id)
+        {
+            return _context.Catas
+                .Include(c => c.Vinos)
+                .Include(c => c.Invitados)
+                .FirstOrDefault(c => c.Id == id);
         }
     }
 }

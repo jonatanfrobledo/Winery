@@ -42,5 +42,10 @@ namespace Winery.Repository
                 _context.SaveChanges(); 
             }
         }
+        public List<Wine> GetWinesById(List<int> wineIds)
+        {
+            return _context.Wines
+                .Where(w => wineIds.Contains(w.Id)).ToList();
+        }
     }
 }

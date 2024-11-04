@@ -2,6 +2,7 @@
 
 namespace Winery.Entities
 {
+
     public class Cata
     {
         public int Id { get; set; }
@@ -10,5 +11,6 @@ namespace Winery.Entities
 
         public List<Wine> Vinos { get; set; } = new List<Wine>(); 
         public List<Guest> Invitados { get; set; } = new List<Guest>(); 
+        public List<Cata> Catas { get; set; }
     }
 }

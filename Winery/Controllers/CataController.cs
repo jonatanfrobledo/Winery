@@ -29,7 +29,9 @@ namespace Winery.Controllers
         [HttpGet("{id}")]
         public IActionResult GetCataById(int id)
         {
-            return Ok();
+           var cataDto = _cataService.GetCataById(id);
+            if (cataDto == null) return NotFound();
+            return Ok(cataDto);
         }
     }
 }

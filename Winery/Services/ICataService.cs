@@ -6,5 +6,7 @@ namespace Winery.Services
     public interface ICataService
     {
         Cata CreateCata(CreateCataDto cataDto);
+        CataDto? GetCataById (int id);
+
     }
 }

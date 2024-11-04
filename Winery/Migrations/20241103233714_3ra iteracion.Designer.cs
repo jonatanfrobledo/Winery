@@ -2,6 +2,7 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -9,35 +10,18 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace Winery.Migrations
 {
     [DbContext(typeof(WineryContext))]
-    partial class WineryContextModelSnapshot : ModelSnapshot
+    [Migration("20241103233714_3ra iteracion")]
+    partial class _3raiteracion
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder.HasAnnotation("ProductVersion", "6.0.0");
-
-            modelBuilder.Entity("CataWine", b =>
-                {
-                    b.Property<int>("CatasId")
-                        .HasColumnType("INTEGER");
-
-                    b.Property<int>("VinosId")
-                        .HasColumnType("INTEGER");
-
-                    b.HasKey("CatasId", "VinosId");
-
-                    b.HasIndex("VinosId");
-
-                    b.ToTable("CataWine");
-                });
 
             modelBuilder.Entity("Winery.Entities.Cata", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("INTEGER");
-
-                    b.Property<int?>("CataId")
                         .HasColumnType("INTEGER");
 
                     b.Property<DateTime>("Fecha")
@@ -48,8 +32,6 @@ namespace Winery.Migrations
                         .HasColumnType("TEXT");
 
                     b.HasKey("Id");
-
-                    b.HasIndex("CataId");
 
                     b.ToTable("Catas");
                 });
@@ -124,6 +106,9 @@ namespace Winery.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("INTEGER");
 
+                    b.Property<int?>("CataId")
+                        .HasColumnType("INTEGER");
+
                     b.Property<string>("Name")
                         .IsRequired()
                         .HasMaxLength(100)
@@ -145,29 +130,9 @@ namespace Winery.Migrations
 
                     b.HasKey("Id");
 
+                    b.HasIndex("CataId");
+
                     b.ToTable("Wines");
-                });
-
-            modelBuilder.Entity("CataWine", b =>
-                {
-                    b.HasOne("Winery.Entities.Cata", null)
-                        .WithMany()
-                        .HasForeignKey("CatasId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.HasOne("Winery.Entities.Wine", null)
-                        .WithMany()
-                        .HasForeignKey("VinosId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-                });
-
-            modelBuilder.Entity("Winery.Entities.Cata", b =>
-                {
-                    b.HasOne("Winery.Entities.Cata", null)
-                        .WithMany("Catas")
-                        .HasForeignKey("CataId");
                 });
 
             modelBuilder.Entity("Winery.Entities.Guest", b =>
@@ -181,11 +146,18 @@ namespace Winery.Migrations
                     b.Navigation("Cata");
                 });
 
+            modelBuilder.Entity("Winery.Entities.Wine", b =>
+                {
+                    b.HasOne("Winery.Entities.Cata", null)
+                        .WithMany("Vinos")
+                        .HasForeignKey("CataId");
+                });
+
             modelBuilder.Entity("Winery.Entities.Cata", b =>
                 {
-                    b.Navigation("Catas");
-
                     b.Navigation("Invitados");
+
+                    b.Navigation("Vinos");
                 });
 #pragma warning restore 612, 618
         }

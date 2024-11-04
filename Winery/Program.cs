@@ -42,11 +42,19 @@ builder.Services.AddAuthentication(options =>
 });
 
 // Agregar servicios al contenedor
-builder.Services.AddControllers();
+builder.Services.AddControllers()
+    .AddJsonOptions(options =>
+    {
+        options.JsonSerializerOptions.ReferenceHandler = System.Text.Json.Serialization.ReferenceHandler.IgnoreCycles;
+        options.JsonSerializerOptions.ReferenceHandler = System.Text.Json.Serialization.ReferenceHandler.Preserve;
+        options.JsonSerializerOptions.WriteIndented = true;
+    });
 
 // Inyección de repositorios y servicios usando interfaces
 builder.Services.AddScoped<WineRepository>();
 builder.Services.AddScoped<UserRepository>();
+builder.Services.AddScoped<CataRepository>();
+builder.Services.AddScoped<ICataService, CataService>();
 builder.Services.AddScoped<IWineService, WineService>();
 builder.Services.AddScoped<IUserService, UserService>();
 

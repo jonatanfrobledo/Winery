@@ -22,7 +22,8 @@ public class WineryContext : DbContext
             .HasKey(u => u.Id);
 
         modelBuilder.Entity<Cata>()
-            .HasKey(c => c.Id);
+            .HasMany(c => c.Vinos)
+            .WithMany(w => w.Catas);
 
         modelBuilder.Entity<Guest>()
             .HasKey(g => g.Id);

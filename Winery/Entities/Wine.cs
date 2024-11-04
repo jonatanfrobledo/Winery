@@ -24,5 +24,6 @@ namespace Winery.Entities
 
         [Range(0, int.MaxValue, ErrorMessage = "El stock no puede ser negativo.")]
         public int Stock { get; set; }
+        public List<Cata> Catas { get; set; } = new List<Cata>();
     }
 }
